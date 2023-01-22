@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TODO...</title>
+    <style>
+        #todo-list{
+            background-color: rgb(199, 140, 199);
+
+            color: white;
+            font-size: 16px;
+            font-family: sans-serif;
+            font-weight: bold;
+            margin-top: 5px;
+            padding: 10px 10px;
+            line-height: 25px;
+        
+        }
+
+        #add-btn{
+            background-color: transparent;
+            border: 2px solid green;
+            padding: 5px 5px;
+            vertical-align: top;
+            margin-left: 10px;
+            transition: all 0.5s;
+
+        }
+
+        #add-btn:hover{
+            cursor: pointer;
+            background-color: purple;
+            border-color: purple;
+            color: white;
+            font-weight: bold;
+        }
+
+        #text-box{
+            font-size: 20px;
+            border: 2px solid blueviolet;
+            width: 200px;
+            
+        }
+
+        #date-picker{
+            font-size: 18px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <input type="text" id="text-box" placeholder="add items">
+    <input type="date" id = "date-picker">
+    <button id="add-btn" onclick="addTodo()">Add Todo</button>
+    <div id="todo-list"></div>
+    <script>
+        //Declarations
+        const addBtn = document.getElementById('add-btn')
+        const todoList = document.getElementById("todo-list");
+        //const todos = ["Take groceries", "Wash car","Make dinner"]
+
+        //Model
+        //if local store has some data show that else show defaults data
+        let todos;
+        //Retriving the save data.
+        //localStorage.getItem('todos') --> return string but array of obj is required.
+        let saveData = JSON.parse(localStorage.getItem('todos'));
+
+        if(Array.isArray(saveData)){
+            todos = saveData;
+        }else{
+            todos = [
+                {
+                    title : "Take groceries",
+                    dueDate : "02/12/2021",
+                    id : 'd01'
+                },
+                {
+                    title : "Wash car",
+                    dueDate : "02/11/2021",
+                    id : 'd02'
+                },
+                {
+                    title : "Dinner",
+                    dueDate : "05/12/2021",
+                    id : 'd03'
+                }
+            ]
+        }
+        
+
+        //Creating a TODOs
+        function createTodo(title, dueDate){
+            //creating unique id
+            const time = '' + new Date().getTime();
+
+            //adding an object to an array.
+            todos.push({
+                title : title,
+                dueDate : dueDate,
+                id : time
+            })
+
+            saveTodos();
+        }
+
+        //Removing a TODOs
+        function removeTodo(idToDelete){
+            //Now need to filter the todos object baseed on id
+            todos = todos.filter(function(todo){
+                if(todo.id === idToDelete){
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            });
+            saveTodos();     
+        }
+
+        //Saving TODOs
+        function saveTodos(){
+            localStorage.setItem('todos',JSON.stringify(todos))
+        }
+
+
+        //View Sections
+        function render(){
+            todoList.innerHTML=' ';   //todoList is a div
+            todos.forEach((todoObj) => {
+
+                //creating a div for each line
+                let element = document.createElement('div');
+                element.innerHTML = todoObj.title + ' '+todoObj.dueDate;
+                todoList.appendChild(element); //todoList - div
+
+                //create a delete button
+                const delBtn = document.createElement('button');
+                delBtn.innerText = 'Delete';
+                delBtn.style = 'margin-left : 10px'
+                delBtn.id = todoObj.id;
+                element.appendChild(delBtn);
+                delBtn.onclick = deleteToDO;
+
+
+            })
+        }
+        render();
+
+        //Controller -- these are events (deleteTodo and addTodo)
+        function deleteToDO(event){
+            //console.log(event)
+            const idToDelete = event.target.id; //This is returning string
+            
+            removeTodo(idToDelete);
+
+            render(); 
+        }
+
+        function addTodo(){
+            const datePicker = document.getElementById("date-picker");
+            const dueDate = datePicker.value;
+            
+            const textBox = document.getElementById('text-box');
+            const title = textBox.value
+            
+            createTodo(title, dueDate);
+            
+            render();
+        }
+
+    </script>
+</body>
+</html>
